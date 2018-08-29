@@ -8,57 +8,109 @@
  * @author Filipe Voges
  * @since 2018-08-22
  */
-class NQueens{
+ class NQueens {
 
     /**
-     * @var Boolean
+     * @var Array
+     * @access public
      */
-    protected $chessBoard;
-
-    /**
-     * @var Integer
-     */
-    protected $size;
+ 	public $board = [];
 
     /**
      * @var Integer
+     * @access public
      */
-    protected $boundary;
+ 	public $numQueens = 8;
 
     /**
-     * @var Integer
+     * Construct Class
+     *
+     * @param $n Integer
      */
-    protected $noOfBacktrackCalls;
+ 	public function __construct($n = 8){
+ 		$this->numQueens = $n;
 
-    public function initChessBoard() {
-        $this->chessBoard = [[], []];
-        $this->boundary = $this->size - 1;
-    }
+ 		for($i = 0; $i < $n; $i++){
+ 			$this->board[$i] = array_fill(0, $n, 0);
+ 		}
+ 	}
 
-    public function backTrackRoutine($row, $col) {
-        $this->noOfBacktrackCalls++;
-        $flag = true;
-        if($col == $this->size || $row == $this->size) {
-            return false;
-        }
-        if(canPlace($row, $col)) {
-            echo "Placing queen at Row- " . $row . " , col-" . $col . "\n";
-            $this->chessBoard[[$row][$col]] = true;
-            if($row == $this->boundary) {
-                echo "Problem Solved!!\n";
-                return true;
-            }elseif(!backTrackRoutine($row + 1, 0)){
-                echo "Removing queen at Row- " . $row . " , col-" . $col . "\n";
-                $this->chessBoard[[$row][$col]] = false;
-                $flag = backTrackRoutine($row, $col + 1);
+    /**
+     * solve
+     *
+     * @param $queenNum Integer
+     * @param $row Integer
+     * @return Boolean
+     */
+ 	public function solve($queenNum, $row){
+ 		for($col = 0; $col < $this->numQueens; $col++){
+ 			if($this->allowed($row, $col)){
+ 				$this->board[$row][$col] = 1;
+ 				if(($queenNum === $this->numQueens - 1) || $this->solve($queenNum + 1, $row + 1) === true){
+                    return true;
+                }
+
+ 				$this->board[$row][$col] = 0;
+ 			}
+ 		}
+ 		return false;
+ 	}
+
+    /**
+     * allowed
+     *
+     * @param $x Integer
+     * @param $y Integer
+     * @return Boolean
+     */
+ 	public function allowed($x, $y){
+ 		$n = $this->numQueens;
+
+ 		for($i = 0; $i < $x; $i++){
+ 			if($this->board[$i][$y] === 1) {
+                return false;
             }
-            return $flag;
-        }else{
-            return backTrackRoutine($row, $col + 1);
+ 			$tx = $x - 1 - $i;
+ 			$ty = $y - 1 - $i;
+ 			if(($ty >= 0) && ($this->board[$tx][$ty] === 1)){
+                return false;
+            }
+
+ 			$ty = $y + 1 + $i;
+ 			if(($ty < $n) && ($this->board[$tx][$ty] === 1)){
+                return false;
+            }
+ 		}
+
+ 		return true;
+ 	}
+
+ 	/**
+     * printBoard
+     *
+     * @return Void
+     */
+ 	function printBoard(){
+ 		for($row = 0; $row < $this->numQueens; $row++){
+ 			$sep = '-';
+ 			for($col = 0; $col < $this->numQueens; $col++){
+ 				$sep .= '--';
+ 				echo '|';
+
+ 				$cell = $this->board[$row][$col];
+ 				if($cell === 1){
+ 					echo 'Q';
+ 				}else{
+ 					echo ' ';
+ 				}
+            }
+
+ 			echo "|\n";
+ 			echo $sep . "\n";
         }
-
     }
-
 }
 
-echo "VSF ELISA \n";
+ $queens = new NQueens(4);
+ $queens->solve(0, 0);
+ $queens->printBoard();
